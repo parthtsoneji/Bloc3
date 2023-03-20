@@ -11,76 +11,62 @@ class ApiCallScreen extends StatefulWidget {
 }
 
 class _ApiCallScreenState extends State<ApiCallScreen> {
-  int index = 0;
   bool _canShowButton = false;
+  HerokuPizza? demo;
 
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (p0, p1) {
-          return BlocListener<HerokuBloc, HerokuState>(
+      body: Center(
+        child: Column(
+          children: [
+            if (!_canShowButton)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<HerokuBloc>().add(ClickEvent(HerokuPizza()));
+                    setState(() {
+                      _canShowButton = true;
+                    });
+                  },
+                  child: const Text('Click Me..!!!'),
+                ),
+              ),
+            BlocListener<HerokuBloc, HerokuState>(
               listener: (context, state) {
-                if (state is HerokuLoadingState) {
-                  setState(() {
-                    _canShowButton = true;
-                  });
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const Scaffold(
-                          body: Center(
-                              child: CircularProgressIndicator()))));
-                }
                 if (state is HerokuLoadedState) {
-                  HerokuPizza data = state.heroku;
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => Scaffold(
-                            body: Column(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: ListView.builder(
-                                      itemCount: data.recipes!.length,
-                                      itemBuilder: (_, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4, horizontal: 8),
-                                          child: Card(
-                                              child: ListTile(
-                                            leading: Image.network(
-                                                data.recipes![index].imageUrl
-                                                    .toString(),
-                                                width: 80),
-                                            title: Text(
-                                              data.recipes![index].title
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          )),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                          )));
+                  setState(() {
+                    demo = state.heroku;
+                  });
                 }
               },
-              child: Column(children: [
-                if (!_canShowButton)
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context
-                            .read<HerokuBloc>()
-                            .add(ClickEvent(HerokuPizza()));
-                        setState(() {
-                          _canShowButton = true;
-                        });
-                      },
-                      child: const Text('Click Me..!!!'),
-                    ),
-                  ),
-              ]));
-        },
+              child: demo == null
+                  ? CircularProgressIndicator()
+                  : Expanded(
+                child: ListView.builder(
+                  itemCount: demo!.recipes!.length,
+                  itemBuilder: (_, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8),
+                      child: Card(
+                        child: ListTile(
+                          leading: Image.network(
+                            demo!.recipes![index].imageUrl.toString(),
+                            width: 80,
+                          ),
+                          title: Text(
+                            demo!.recipes![index].title.toString(),
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
