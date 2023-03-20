@@ -12,6 +12,7 @@ class ApiCallScreen extends StatefulWidget {
 
 class _ApiCallScreenState extends State<ApiCallScreen> {
   bool _canShowButton = false;
+  bool _isLoading = false;
   HerokuPizza? demo;
 
   Widget build(BuildContext context) {
@@ -26,45 +27,52 @@ class _ApiCallScreenState extends State<ApiCallScreen> {
                     context.read<HerokuBloc>().add(ClickEvent(HerokuPizza()));
                     setState(() {
                       _canShowButton = true;
+                      _isLoading = true;
                     });
                   },
                   child: const Text('Click Me..!!!'),
                 ),
               ),
             BlocListener<HerokuBloc, HerokuState>(
-              listener: (context, state) {
-                if (state is HerokuLoadedState) {
-                  setState(() {
-                    demo = state.heroku;
-                  });
-                }
-              },
-              child: demo == null
-                  ? CircularProgressIndicator()
-                  : Expanded(
-                child: ListView.builder(
-                  itemCount: demo!.recipes!.length,
-                  itemBuilder: (_, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 8),
-                      child: Card(
-                        child: ListTile(
-                          leading: Image.network(
-                            demo!.recipes![index].imageUrl.toString(),
-                            width: 80,
-                          ),
-                          title: Text(
-                            demo!.recipes![index].title.toString(),
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
+                listener: (context, state) {
+                  if (state is HerokuLoadedState) {
+                    setState(() {
+                      demo = state.heroku;
+                      _isLoading = false;
+                    });
+                  }
+                },
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : demo != null
+                        ? Expanded(
+                            child: ListView.builder(
+                              itemCount: demo!.recipes!.length,
+                              itemBuilder: (_, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  child: Card(
+                                    child: ListTile(
+                                      leading: Image.network(
+                                        demo!.recipes![index].imageUrl
+                                            .toString(),
+                                        width: 80,
+                                      ),
+                                      title: Text(
+                                        demo!.recipes![index].title.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox.shrink()),
           ],
         ),
       ),
