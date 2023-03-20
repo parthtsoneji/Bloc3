@@ -15,6 +15,7 @@ class _ApiCallScreenState extends State<ApiCallScreen> {
   HerokuPizza? demo;
   bool _isLoading = false;
 
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -39,13 +40,10 @@ class _ApiCallScreenState extends State<ApiCallScreen> {
                       setState(() {
                         _isLoading = true;
                       });
-                    } else {
-                      setState(() {
-                        _isLoading = false;
-                      });
                     }
                     if (state is HerokuLoadedState) {
                       setState(() {
+                        _isLoading = false;
                         demo = state.heroku;
                       });
                     }
